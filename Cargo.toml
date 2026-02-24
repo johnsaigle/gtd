@@ -18,3 +18,23 @@ regex = "1"
 ratatui = "0.29"
 crossterm = "0.28"
 uuid = { version = "1", features = ["v4"] }
+
+# --- scaffold ---
+[profile.dev]
+overflow-checks = true
+lto = "fat"
+
+[profile.release]
+overflow-checks = true
+lto = "fat"
+opt-level = 3
+strip = "debuginfo"
+incremental = true
+
+[lints.clippy]
+complexity = "warn"
+correctness = "warn"
+nursery = "warn"
+pedantic = "warn"
+perf = "warn"
+suspicious = "warn"
