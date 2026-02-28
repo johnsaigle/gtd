@@ -21,13 +21,13 @@ pub fn run(filter: &str, show_all: bool) -> Result<()> {
                 println!("{} Project '{}' not found.", "!".red().bold(), name);
                 return Ok(());
             }
-            show_file(&format!("Project: {}", name), &path, show_all)
+            show_file(&format!("Project: {name}"), &path, show_all)
         }
         _ => {
             // Try as project name
             let path = gtd::project_tasks_file(filter);
             if path.exists() {
-                show_file(&format!("Project: {}", filter), &path, show_all)
+                show_file(&format!("Project: {filter}"), &path, show_all)
             } else {
                 println!(
                     "{} Unknown filter '{}'. Options: next, waiting, someday, intray, archive, all, project:<name>",
@@ -118,18 +118,17 @@ fn print_task(task: &markdown::Task) {
 
     if let Some(ref due) = task.meta.due {
         let today = chrono::Local::now().date_naive();
-        let due_str = if *due < today {
-            format!(" OVERDUE:{}", due).red().bold().to_string()
-        } else if *due == today {
-            " due:TODAY".to_string().yellow().bold().to_string()
-        } else {
-            format!(" due:{}", due).dimmed().to_string()
+        let due_str = match (*due).cmp(&today) {
+            std::cmp::Ordering::Less => format!(" OVERDUE:{due}").red().bold().to_string(),
+            std::cmp::Ordering::Equal => " due:TODAY".to_string().yellow().bold().to_string(),
+            std::cmp::Ordering::Greater => format!(" due:{due}").dimmed().to_string(),
         };
         line.push_str(&due_str);
     }
 
     if let Some(ref person) = task.meta.delegated_to {
-        line.push_str(&format!(" {}", format!("[-> {}]", person).blue()));
+        use std::fmt::Write;
+        let _ = write!(line, " {}", format!("[-> {person}]").blue());
     }
 
     if task.meta.reminder {
@@ -139,5 +138,5 @@ fn print_task(task: &markdown::Task) {
         line.push_str(&" [C]".cyan().to_string());
     }
 
-    println!("{}", line);
+    println!("{line}");
 }

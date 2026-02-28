@@ -30,10 +30,7 @@ pub fn run(id: &str) -> Result<()> {
         }
     }
 
-    bail!(
-        "Task with ID '{}' not found. Use `gtd list all` to see task IDs.",
-        id
-    );
+    bail!("Task with ID '{id}' not found. Use `gtd list all` to see task IDs.");
 }
 
 fn collect_all_task_files() -> Result<Vec<std::path::PathBuf>> {

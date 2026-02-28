@@ -101,12 +101,12 @@ pub enum GtdList {
 #[expect(dead_code, reason = "public API for future use by external consumers")]
 impl GtdList {
     /// Resolve the file path for this list. For Project, pass the project name.
-    pub fn file_path(&self, project_name: Option<&str>) -> Result<PathBuf> {
+    pub fn file_path(self, project_name: Option<&str>) -> Result<PathBuf> {
         match self {
-            GtdList::NextActions => Ok(tasks_file()),
-            GtdList::WaitingFor => Ok(waiting_for_file()),
-            GtdList::SomedayMaybe => Ok(someday_maybe_file()),
-            GtdList::Project => {
+            Self::NextActions => Ok(tasks_file()),
+            Self::WaitingFor => Ok(waiting_for_file()),
+            Self::SomedayMaybe => Ok(someday_maybe_file()),
+            Self::Project => {
                 let name = project_name
                     .ok_or_else(|| anyhow::anyhow!("project name required for Project list"))?;
                 Ok(project_tasks_file(name))
@@ -114,12 +114,12 @@ impl GtdList {
         }
     }
 
-    pub fn display_name(&self) -> &'static str {
+    pub const fn display_name(self) -> &'static str {
         match self {
-            GtdList::NextActions => "Next Actions",
-            GtdList::WaitingFor => "Waiting For",
-            GtdList::SomedayMaybe => "Someday/Maybe",
-            GtdList::Project => "Project",
+            Self::NextActions => "Next Actions",
+            Self::WaitingFor => "Waiting For",
+            Self::SomedayMaybe => "Someday/Maybe",
+            Self::Project => "Project",
         }
     }
 }

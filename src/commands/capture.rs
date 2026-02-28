@@ -5,7 +5,7 @@ use std::fs;
 use crate::gtd;
 use crate::markdown;
 
-pub fn run(description: Vec<String>) -> Result<()> {
+pub fn run(description: &[String]) -> Result<()> {
     let desc = if description.is_empty() {
         // Interactive prompt
         dialoguer::Input::<String>::new()

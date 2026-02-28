@@ -6,12 +6,12 @@ use crate::gtd;
 use crate::markdown::{self, Task};
 
 pub fn run(
-    description: Vec<String>,
+    description: &[String],
     waiting: bool,
     someday: bool,
-    project: Option<String>,
-    due: Option<String>,
-    delegated_to: Option<String>,
+    project: Option<&String>,
+    due: Option<&String>,
+    delegated_to: Option<&String>,
 ) -> Result<()> {
     let desc = if description.is_empty() {
         dialoguer::Input::<String>::new()
@@ -36,21 +36,17 @@ pub fn run(
     }
 
     // Set delegated_to
-    if let Some(person) = &delegated_to {
-        task.meta.delegated_to = Some(person.clone());
+    if let Some(person) = delegated_to {
+        task.meta.delegated_to = Some((*person).clone());
     }
 
     // Determine target file
-    let (target_path, list_name) = if let Some(ref proj) = project {
+    let (target_path, list_name) = if let Some(proj) = project {
         let path = gtd::project_tasks_file(proj);
         if !path.exists() {
-            bail!(
-                "Project '{}' does not exist. Create it first with: gtd project new {}",
-                proj,
-                proj
-            );
+            bail!("Project '{proj}' does not exist. Create it first with: gtd project new {proj}");
         }
-        (path, format!("project:{}", proj))
+        (path, format!("project:{proj}"))
     } else if waiting {
         (gtd::waiting_for_file(), "waiting-for".to_string())
     } else if someday {

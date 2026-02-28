@@ -15,8 +15,6 @@ colored = "3"
 dialoguer = "0.11"
 walkdir = "2"
 regex = "1"
-ratatui = "0.29"
-crossterm = "0.28"
 uuid = { version = "1", features = ["v4"] }
 
 # --- scaffold ---

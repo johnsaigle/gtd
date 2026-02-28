@@ -17,13 +17,13 @@ pub fn run(action: ProjectAction) -> Result<()> {
 fn create_project(name: &str) -> Result<()> {
     let dir = gtd::project_dir(name);
     if dir.exists() {
-        bail!("Project '{}' already exists", name);
+        bail!("Project '{name}' already exists");
     }
 
     fs::create_dir_all(gtd::project_reference_dir(name))?;
     fs::write(
         gtd::project_tasks_file(name),
-        format!("# Project: {}\n", name),
+        format!("# Project: {name}\n"),
     )?;
 
     println!(
@@ -79,7 +79,7 @@ fn list_projects() -> Result<()> {
 fn delete_project(name: &str) -> Result<()> {
     let dir = gtd::project_dir(name);
     if !dir.exists() {
-        bail!("Project '{}' does not exist", name);
+        bail!("Project '{name}' does not exist");
     }
 
     // Archive remaining tasks

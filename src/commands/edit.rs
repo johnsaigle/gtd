@@ -16,7 +16,7 @@ pub fn run(target: &str) -> Result<()> {
             let name = t.strip_prefix("project:").unwrap_or_default();
             let path = gtd::project_tasks_file(name);
             if !path.exists() {
-                bail!("Project '{}' does not exist", name);
+                bail!("Project '{name}' does not exist");
             }
             path
         }
@@ -27,8 +27,7 @@ pub fn run(target: &str) -> Result<()> {
                 path
             } else {
                 bail!(
-                    "Unknown target '{}'. Options: tasks, waiting, someday, intray, archive, project:<name>",
-                    target
+                    "Unknown target '{target}'. Options: tasks, waiting, someday, intray, archive, project:<name>"
                 );
             }
         }

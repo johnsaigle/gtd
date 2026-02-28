@@ -80,13 +80,13 @@ impl fmt::Display for Task {
         let due = self
             .meta
             .due
-            .map(|d| format!(" (due: {})", d))
+            .map(|d| format!(" (due: {d})"))
             .unwrap_or_default();
         let delegated = self
             .meta
             .delegated_to
             .as_ref()
-            .map(|d| format!(" [-> {}]", d))
+            .map(|d| format!(" [-> {d}]"))
             .unwrap_or_default();
         write!(
             f,
@@ -103,11 +103,11 @@ pub fn parse_tasks(path: &Path) -> Result<Vec<Task>> {
     }
     let content =
         fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
-    parse_tasks_from_str(&content)
+    Ok(parse_tasks_from_str(&content))
 }
 
 /// Parse tasks from markdown string content.
-pub fn parse_tasks_from_str(content: &str) -> Result<Vec<Task>> {
+pub fn parse_tasks_from_str(content: &str) -> Vec<Task> {
     let mut tasks = Vec::new();
     let mut lines = content.lines().peekable();
 
@@ -153,18 +153,20 @@ pub fn parse_tasks_from_str(content: &str) -> Result<Vec<Task>> {
         }
     }
 
-    Ok(tasks)
+    tasks
 }
 
 fn parse_checkbox_line(line: &str) -> (bool, String) {
     let trimmed = line.trim();
-    if let Some(desc) = trimmed.strip_prefix("- [x] ") {
-        (true, desc.to_string())
-    } else if let Some(desc) = trimmed.strip_prefix("- [ ] ") {
-        (false, desc.to_string())
-    } else {
-        (false, trimmed.to_string())
-    }
+    trimmed.strip_prefix("- [x] ").map_or_else(
+        || {
+            trimmed.strip_prefix("- [ ] ").map_or_else(
+                || (false, trimmed.to_string()),
+                |desc| (false, desc.to_string()),
+            )
+        },
+        |desc| (true, desc.to_string()),
+    )
 }
 
 /// Write tasks back to a file, preserving the header line.
@@ -196,17 +198,18 @@ pub fn append_task(path: &Path, task: &Task) -> Result<()> {
 fn read_header(path: &Path) -> String {
     fs::read_to_string(path)
         .ok()
-        .and_then(|c| c.lines().next().map(|l| l.to_string()))
+        .and_then(|c| c.lines().next().map(std::string::ToString::to_string))
         .unwrap_or_else(|| "# Tasks".to_string())
 }
 
 /// Write a simple in-tray item (no frontmatter, just a checkbox line).
 pub fn append_intray_item(path: &Path, description: &str) -> Result<()> {
+    use std::fmt::Write;
     let mut content = fs::read_to_string(path).unwrap_or_default();
     if !content.ends_with('\n') {
         content.push('\n');
     }
-    content.push_str(&format!("- [ ] {}\n", description));
+    let _ = writeln!(content, "- [ ] {description}");
     fs::write(path, &content).with_context(|| format!("writing {}", path.display()))?;
     Ok(())
 }

@@ -116,7 +116,7 @@ pub enum ProjectAction {
 
 pub fn run(cli: Cli) -> Result<()> {
     match cli.command {
-        Command::Capture { description } => capture::run(description),
+        Command::Capture { description } => capture::run(&description),
         Command::Process => process::run(),
         Command::Add {
             description,
@@ -125,12 +125,19 @@ pub fn run(cli: Cli) -> Result<()> {
             project,
             due,
             delegated_to,
-        } => add::run(description, waiting, someday, project, due, delegated_to),
+        } => add::run(
+            &description,
+            waiting,
+            someday,
+            project.as_ref(),
+            due.as_ref(),
+            delegated_to.as_ref(),
+        ),
         Command::Done { id } => done::run(&id),
         Command::List { filter, show_all } => list::run(&filter, show_all),
         Command::Project { action } => project::run(action),
         Command::Review => review::run(),
         Command::Edit { target } => edit::run(&target),
-        Command::Search { query } => search::run(query),
+        Command::Search { query } => search::run(&query),
     }
 }
